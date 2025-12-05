@@ -16,8 +16,8 @@ kalshiEventUrl = "https://api.elections.kalshi.com/trade-api/v2/events/"
 kalshi_file = "kalshi_data.json"
 kalshi_slug = "KXETHATH-25DEC31?with_nested_markets=true" # query param to return event with markets
 
-def retrieve_event_data(url, slug, file):
-    response = requests.get(polymarketEventUrl + slug)
+def retrieve_event_data(url, file, slug):
+    response = requests.get(url + slug)
     data = response.json()
 
     with open(file, 'w', encoding='utf-8') as file:
