@@ -1,3 +1,5 @@
+import json
+
 class MarketData:
     def __init__(self, ticker, bid, ask, site):
         self.ticker = ticker
@@ -10,10 +12,60 @@ class MarketData:
 
 # pass in a single markets json and return its formatted price
 class KalshiNormalizer: 
+    def handle_float(self, value):
+        if value is None:
+            return 0.0
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return 0.0
+        
     def normalize(self, raw_json):
-        pass
+        ticker = raw_json['event']['event_ticker']
+        market_info = raw_json['event']['markets'][0]
+
+        bid_price = self.handle_float(market_info.get('yes_bid_dollars'))
+        ask_price = self.handle_float(market_info.get('yes_ask_dollars'))
+        return MarketData(ticker, bid_price, ask_price, 'KALSHI')
 
 class PolymarketNormalizer:
+    def handle_float(self, value):
+        if value is None:
+            return 0.0
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return 0.0
+        
     def normalize(self, raw_json):
-        pass
+        ticker = raw_json['ticker']
+        market_info = raw_json['markets'][0]
 
+        bid_price = self.handle_float(market_info.get('bestBid'))
+        ask_price = self.handle_float(market_info.get('bestAsk'))
+        return MarketData(ticker, bid_price, ask_price, 'POLYMARKET')
+
+def load_data(file):
+    with open(file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def normalize(file, platform):
+    raw_file = load_data(file)
+    if platform == 'polymarket':
+        pM = PolymarketNormalizer()
+        normalized_polyM = pM.normalize(raw_file)
+        return normalized_polyM
+    elif platform == 'kalshi':
+        k = KalshiNormalizer()
+        normalized_kalshi = k.normalize(raw_file)
+        return normalized_kalshi
+    return 'unrecognized platform'
+
+if __name__ == '__main__':
+    try: 
+        print(normalize('kalshi_data.json', 'kalshi'))
+        print(normalize('poly_data.json', 'polymarket'))
+    except FileNotFoundError:
+        print('Retrieve json file (FileNotFound)')
+    except Exception as e:
+        print(f'Error: {e}')
