@@ -1,5 +1,4 @@
-import json
-
+# return normalized data
 class MarketData:
     def __init__(self, ticker, bid, ask, site):
         self.ticker = ticker
@@ -10,7 +9,7 @@ class MarketData:
     def __repr__(self):
         return f"[{self.site}] {self.ticker} | Bid: ${self.bid:.2f} | Ask: ${self.ask:.2f}"
 
-# pass in a single markets json and return its formatted price
+# pass in a single markets json and return ticker & prices
 class KalshiNormalizer: 
     def handle_float(self, value):
         if value is None:
@@ -45,27 +44,13 @@ class PolymarketNormalizer:
         ask_price = self.handle_float(market_info.get('bestAsk'))
         return MarketData(ticker, bid_price, ask_price, 'POLYMARKET')
 
-def load_data(file):
-    with open(file, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def normalize(file, platform):
-    raw_file = load_data(file)
+def normalize(json, platform):
     if platform == 'polymarket':
         pM = PolymarketNormalizer()
-        normalized_polyM = pM.normalize(raw_file)
+        normalized_polyM = pM.normalize(json)
         return normalized_polyM
     elif platform == 'kalshi':
         k = KalshiNormalizer()
-        normalized_kalshi = k.normalize(raw_file)
+        normalized_kalshi = k.normalize(json)
         return normalized_kalshi
     return 'unrecognized platform'
-
-if __name__ == '__main__':
-    try: 
-        print(normalize('kalshi_data.json', 'kalshi'))
-        print(normalize('poly_data.json', 'polymarket'))
-    except FileNotFoundError:
-        print('Retrieve json file (FileNotFound)')
-    except Exception as e:
-        print(f'Error: {e}')

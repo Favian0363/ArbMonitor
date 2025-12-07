@@ -1,27 +1,28 @@
-import requests
-import json
+import aiohttp
+import asyncio
+import normalizer as n
 
-# polymarket uses floats for pricing
-# retrieving all markets for ethATH
-# slug is polymarket's term for an event
+polymarketEventUrl = "https://gamma-api.polymarket.com/events/slug/ethereum-all-time-high-by-december-31"
+kalshiEventUrl = "https://api.elections.kalshi.com/trade-api/v2/events/KXETHATH-25DEC31?with_nested_markets=true"
 
-polymarketEventUrl = "https://gamma-api.polymarket.com/events/slug/"
-pM_file = "poly_data.json"
-pM_slug = "ethereum-all-time-high-by-december-31" # pM returns event with markets by default
+# concurrently request data to each platforms API
+async def get_tasks(session, url):
+    async with session.get(url) as response: 
+        response.raise_for_status() # check for errors 
+        return await response.json() # return api response as json
 
-# kalshi uses integers for pricing
-# retrieving all markets for ethATH
+# store requested data
+async def get_data():
+    urls = [polymarketEventUrl, kalshiEventUrl]
+    async with aiohttp.ClientSession() as session: # start session for http requests
+        tasks = []
+        for url in urls:
+            tasks.append(get_tasks(session, url)) # start tasks simultaneously 
+        return await asyncio.gather(*tasks) # wait until tasks finish and return 
 
-kalshiEventUrl = "https://api.elections.kalshi.com/trade-api/v2/events/"
-kalshi_file = "kalshi_data.json"
-kalshi_slug = "KXETHATH-25DEC31?with_nested_markets=true" # query param to return event with markets
-
-def retrieve_event_data(url, file, slug):
-    response = requests.get(url + slug)
-    data = response.json()
-
-    with open(file, 'w', encoding='utf-8') as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-
-retrieve_event_data(polymarketEventUrl, pM_file, pM_slug)
-retrieve_event_data(kalshiEventUrl, kalshi_file, kalshi_slug)
+if __name__ == '__main__':
+    raw_data = asyncio.run(get_data())
+    raw_poly = raw_data[0]
+    raw_kalshi = raw_data[1]
+    print(n.normalize(raw_poly, 'polymarket'))
+    print(n.normalize(raw_kalshi, 'kalshi'))
