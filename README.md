@@ -11,11 +11,4 @@ and capitalize on opportunities.
 - Setting up concurrency with asyncio <-/->
 - Implement check for arbitrage logic <-/->
 
-2. Refactor 
-- Level 2 Orderbook Data <-!->
-- Calculate VWAP (Volume Weighted Average Price)
-
-3. Support multiple events
-- Support non-binary markets 
-
-4. Implement persistent Websockets API instead of passive RestAPI
+2. Support multiple markets <-!->
