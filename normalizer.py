@@ -11,7 +11,7 @@ class MarketData:
 
 # pass in a single markets json and return ticker & prices
 class KalshiNormalizer: 
-    def handle_float(self, value):
+    def handle_none(self, value):
         if value is None:
             return 0.0
         try:
@@ -23,8 +23,8 @@ class KalshiNormalizer:
         ticker = raw_json['event']['event_ticker']
         market_info = raw_json['event']['markets'][0]
 
-        bid_price = self.handle_float(market_info.get('yes_bid_dollars'))
-        ask_price = self.handle_float(market_info.get('yes_ask_dollars'))
+        bid_price = self.handle_none(market_info.get('yes_bid_dollars'))
+        ask_price = self.handle_none(market_info.get('yes_ask_dollars'))
         return MarketData(ticker, bid_price, ask_price, 'KALSHI')
 
 class PolymarketNormalizer:
