@@ -9,13 +9,13 @@ and capitalize on opportunities.
 - Extracting & Normalizing <-/-> 
 - Binary Market Support <-/->
 - Setting up concurrency with asyncio <-/->
+- Implement check for arbitrage logic <-/->
 
-2. Support multiple events <-!->
+2. Refactor 
+- Level 2 Orderbook Data <-!->
+- Calculate VWAP (Volume Weighted Average Price)
+
+3. Support multiple events
 - Support non-binary markets 
 
-3. Implement persistent Websockets API instead of passive RestAPI
-
-3. Refactor 
-- Level 2 Orderbook Data
-- Calculate VWAP (Volume Weighted Average Price)
-- Actual execution & liquidity
+4. Implement persistent Websockets API instead of passive RestAPI
